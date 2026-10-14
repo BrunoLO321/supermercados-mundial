@@ -1,0 +1,22 @@
+﻿# Dependências e arquivos gerados
+**/node_modules/
+**/dist/
+**/coverage/
+**/.angular/
+**/bin/
+**/obj/
+.vs/
+.vscode/
+
+# Bancos de dados locais
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Configurações e segredos locais
+**/appsettings.Development.json
+**/.env
+**/.env.*
+!.env.example

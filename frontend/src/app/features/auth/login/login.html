@@ -1,0 +1,65 @@
+
+<div class="login-page">
+  <section class="login-brand">
+    <div class="brand-logo">M</div>
+    <h1>Supermercados Mundial</h1>
+    <p>Gestão inteligente para o seu negócio.</p>
+
+    <div class="brand-decoration">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <small>Gestão simples, operação eficiente.</small>
+  </section>
+
+  <section class="login-content">
+    <div class="login-card">
+      <div class="mobile-logo">M</div>
+
+      <span class="welcome-label">BEM-VINDO DE VOLTA</span>
+      <h2>Acesse sua conta</h2>
+      <p class="login-description">
+        Informe suas credenciais para acessar o painel administrativo.
+      </p>
+
+      <form (ngSubmit)="submit()" #loginForm="ngForm">
+        <label for="username">Usuário</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          [(ngModel)]="username"
+          placeholder="Digite seu usuário"
+          autocomplete="username"
+          required />
+
+        <label for="password">Senha</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          [(ngModel)]="password"
+          placeholder="Digite sua senha"
+          autocomplete="current-password"
+          required />
+
+        <p class="error-message" *ngIf="errorMessage" role="alert">
+          {{ errorMessage }}
+        </p>
+
+        <button type="submit" [disabled]="loading || loginForm.invalid">
+          {{ loading ? 'Entrando...' : 'Entrar na plataforma' }}
+        </button>
+      </form>
+
+      <div class="security-note">
+        <span>▣</span>
+        Acesso protegido por autenticação.
+      </div>
+    </div>
+
+    <footer>© 2026 Supermercados Mundial Ltda.</footer>
+  </section>
+</div>

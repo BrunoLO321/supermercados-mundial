@@ -1,0 +1,315 @@
+<div class="products-page">
+
+  <!-- Cabeçalho -->
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">GESTÃO DE CADASTROS</span>
+      <h1>Produtos</h1>
+      <p>Consulte e cadastre os produtos da sua operação.</p>
+    </div>
+
+    <button
+      class="primary-button"
+      type="button"
+      (click)="abrirModal()">
+      <span>＋</span>
+      Novo produto
+    </button>
+  </header>
+
+  <!-- Mensagem de sucesso -->
+  <div
+    *ngIf="mensagemSucesso"
+    class="feedback success"
+    role="status">
+    <span>✓</span>
+    <span>{{ mensagemSucesso }}</span>
+
+    <button
+      type="button"
+      aria-label="Fechar mensagem"
+      (click)="mensagemSucesso = ''">
+      ×
+    </button>
+  </div>
+
+  <!-- Mensagem de erro -->
+  <div
+    *ngIf="mensagemErro && !modalAberto"
+    class="feedback error"
+    role="alert">
+    <span>!</span>
+    <span>{{ mensagemErro }}</span>
+
+    <button
+      type="button"
+      aria-label="Fechar mensagem"
+      (click)="mensagemErro = ''">
+      ×
+    </button>
+  </div>
+
+  <!-- Resumo -->
+  <section class="summary-card">
+    <div class="summary-icon">▤</div>
+
+    <div class="summary-content">
+      <span>Total de produtos carregados</span>
+      <strong>{{ produtos.length }}</strong>
+    </div>
+  </section>
+
+  <!-- Catálogo -->
+  <section class="products-card">
+
+    <div class="list-header">
+      <div>
+        <h2>Catálogo de produtos</h2>
+        <p>Dados consultados diretamente na API.</p>
+      </div>
+
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+
+        <input
+          type="search"
+          name="busca"
+          [(ngModel)]="busca"
+          placeholder="Buscar código ou descrição"
+          aria-label="Buscar produtos" />
+      </label>
+    </div>
+
+    <!-- Carregamento -->
+    <div
+      *ngIf="carregando"
+      class="state-message"
+      role="status">
+      <span class="loading-indicator"></span>
+      <span>Carregando produtos...</span>
+    </div>
+
+    <!-- Erro na listagem -->
+    <div
+      *ngIf="!carregando && mensagemErro && !modalAberto"
+      class="state-message error-state"
+      role="alert">
+      <strong>Não foi possível carregar os produtos.</strong>
+      <span>Verifique a conexão com a API e sua autenticação.</span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="carregarProdutos()">
+        Tentar novamente
+      </button>
+    </div>
+
+    <!-- Catálogo vazio -->
+    <div
+      *ngIf="
+        !carregando &&
+        !mensagemErro &&
+        produtos.length === 0
+      "
+      class="state-message">
+      <strong>Nenhum produto cadastrado</strong>
+      <span>Cadastre o primeiro produto para começar seu catálogo.</span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="abrirModal()">
+        Cadastrar produto
+      </button>
+    </div>
+
+    <!-- Nenhum resultado na pesquisa -->
+    <div
+      *ngIf="
+        !carregando &&
+        produtos.length > 0 &&
+        produtosFiltrados.length === 0
+      "
+      class="state-message">
+      <strong>Nenhum produto encontrado</strong>
+      <span>Não encontramos produtos para "{{ busca }}".</span>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="busca = ''">
+        Limpar pesquisa
+      </button>
+    </div>
+
+    <!-- Tabela de produtos -->
+    <div
+      class="table-wrapper"
+      *ngIf="
+        !carregando &&
+        !mensagemErro &&
+        produtosFiltrados.length > 0
+      ">
+
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">CÓDIGO</th>
+            <th scope="col">DESCRIÇÃO</th>
+            <th scope="col">PREÇO</th>
+            <th scope="col">STATUS</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="
+              let produto of produtosFiltrados;
+              trackBy: trackByProdutoId
+            ">
+
+            <td>
+              <span class="code-badge">
+                {{ produto.codigo || '—' }}
+              </span>
+            </td>
+
+            <td class="description-cell">
+              {{ produto.descricao || 'Sem descrição' }}
+            </td>
+
+            <td class="price-cell">
+              {{
+                produto.preco
+                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+              }}
+            </td>
+
+            <td>
+              <span
+                class="status-badge"
+                [class.inactive]="
+                  produto.status?.toLowerCase() === 'inativo'
+                ">
+                {{ produto.status || 'Indefinido' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Rodapé da tabela -->
+    <footer
+      class="table-footer"
+      *ngIf="
+        !carregando &&
+        !mensagemErro &&
+        produtos.length > 0 &&
+        produtosFiltrados.length > 0
+      ">
+      Exibindo {{ produtosFiltrados.length }}
+      de {{ produtos.length }} produto(s)
+    </footer>
+
+  </section>
+</div>
+
+<!-- Modal de cadastro -->
+<div
+  class="modal-backdrop"
+  *ngIf="modalAberto"
+  (click)="fecharModal()">
+
+  <section
+    class="product-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    (click)="$event.stopPropagation()">
+
+    <header class="modal-header">
+      <div>
+        <h2 id="modal-title">Novo produto</h2>
+        <p>Preencha os dados para cadastrar no catálogo.</p>
+      </div>
+
+      <button
+        type="button"
+        class="close-button"
+        aria-label="Fechar"
+        [disabled]="salvando"
+        (click)="fecharModal()">
+        ×
+      </button>
+    </header>
+
+    <form
+      (ngSubmit)="cadastrar()"
+      #produtoForm="ngForm">
+
+      <label for="codigo">Código do produto</label>
+
+      <input
+        id="codigo"
+        name="codigo"
+        type="text"
+        [(ngModel)]="codigo"
+        maxlength="50"
+        placeholder="Ex.: PROD-001"
+        autocomplete="off"
+        required />
+
+      <label for="descricao">Descrição</label>
+
+      <input
+        id="descricao"
+        name="descricao"
+        type="text"
+        [(ngModel)]="descricao"
+        maxlength="200"
+        placeholder="Nome do produto"
+        autocomplete="off"
+        required />
+
+      <label for="preco">Preço (R$)</label>
+
+      <input
+        id="preco"
+        name="preco"
+        type="number"
+        [(ngModel)]="preco"
+        min="0"
+        step="0.01"
+        placeholder="0.00"
+        required />
+
+      <!-- Erro do formulário -->
+      <div
+        *ngIf="mensagemErro && modalAberto"
+        class="feedback error modal-error"
+        role="alert">
+        {{ mensagemErro }}
+      </div>
+
+      <footer class="modal-actions">
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="salvando"
+          (click)="fecharModal()">
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="primary-button"
+          [disabled]="salvando || produtoForm.invalid">
+          {{ salvando ? 'Salvando...' : 'Salvar produto' }}
+        </button>
+      </footer>
+
+    </form>
+  </section>
+</div>
