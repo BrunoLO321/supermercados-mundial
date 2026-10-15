@@ -49,4 +49,12 @@ public class FornecedorService
 
         return fornecedor.Id;
     }
+
+    public async Task<IReadOnlyList<Fornecedor>> ListarAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _fornecedorRepository.ListarAsync(
+            cancellationToken);
+    }
+
 }

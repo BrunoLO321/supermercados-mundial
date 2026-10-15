@@ -1,6 +1,5 @@
 
 using Mundial.Domain.Entities;
-using Mundial.Application.Interfaces.Repositories;
 
 namespace Mundial.Application.Interfaces.Repositories;
 
@@ -8,6 +7,9 @@ public interface IFornecedorRepository
 {
     Task<Fornecedor?> ObterPorIdAsync(
         int id,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Fornecedor>> ListarAsync(
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistePorCnpjAsync(

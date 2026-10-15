@@ -22,6 +22,26 @@ public class FornecedoresController : ControllerBase
         string Cnpj,
         string RazaoSocial);
 
+
+    [HttpGet]
+    public async Task<IActionResult> Listar(
+        CancellationToken cancellationToken)
+    {
+        var fornecedores = await _fornecedorService.ListarAsync(
+            cancellationToken);
+
+        var resultado = fornecedores.Select(f => new
+        {
+            f.Id,
+            f.Cnpj,
+            f.RazaoSocial,
+            f.Ativo
+        });
+
+        return Ok(resultado);
+    }
+
+
     [HttpPost]
     public async Task<IActionResult> Criar(
         [FromBody] CriarFornecedorRequest request,

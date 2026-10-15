@@ -1,0 +1,140 @@
+
+<div class="fornecedores-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">GESTÃO DE CADASTROS</span>
+      <h1>Fornecedores</h1>
+      <p>Consulte os fornecedores cadastrados na sua operação.</p>
+    </div>
+
+    <button
+      class="primary-button"
+      type="button"
+      (click)="carregarFornecedores()"
+      [disabled]="carregando">
+      Atualizar lista
+    </button>
+  </header>
+
+  <section class="summary-card">
+    <div class="summary-content">
+      <span>Total de fornecedores</span>
+      <strong>{{ fornecedores.length }}</strong>
+    </div>
+  </section>
+
+  <section class="fornecedores-card">
+    <div class="list-header">
+      <div>
+        <h2>Cadastro de fornecedores</h2>
+        <p>Dados consultados diretamente na API.</p>
+      </div>
+
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          name="busca"
+          [(ngModel)]="busca"
+          placeholder="Buscar razão social ou CNPJ"
+          aria-label="Buscar fornecedores" />
+      </label>
+    </div>
+
+    <div *ngIf="carregando" class="state-message" role="status">
+      <span class="loading-indicator"></span>
+      <span>Carregando fornecedores...</span>
+    </div>
+
+    <div
+      *ngIf="!carregando && mensagemErro"
+      class="state-message error-state"
+      role="alert">
+      <strong>{{ mensagemErro }}</strong>
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="carregarFornecedores()">
+        Tentar novamente
+      </button>
+    </div>
+
+    <div
+      *ngIf="!carregando && !mensagemErro && fornecedores.length === 0"
+      class="state-message">
+      <strong>Nenhum fornecedor cadastrado</strong>
+      <span>Quando houver fornecedores registrados, eles aparecerão aqui.</span>
+    </div>
+
+    <div
+      *ngIf="
+        !carregando &&
+        !mensagemErro &&
+        fornecedores.length > 0 &&
+        fornecedoresFiltrados.length === 0
+      "
+      class="state-message">
+      <strong>Nenhum fornecedor encontrado</strong>
+      <span>Não encontramos resultados para "{{ busca }}".</span>
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="busca = ''">
+        Limpar pesquisa
+      </button>
+    </div>
+
+    <div
+      class="table-wrapper"
+      *ngIf="
+        !carregando &&
+        !mensagemErro &&
+        fornecedoresFiltrados.length > 0
+      ">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">CNPJ</th>
+            <th scope="col">RAZÃO SOCIAL</th>
+            <th scope="col">STATUS</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="
+              let fornecedor of fornecedoresFiltrados;
+              trackBy: trackByFornecedorId
+            ">
+            <td>{{ fornecedor.id }}</td>
+            <td>
+              <span class="code-badge">{{ fornecedor.cnpj }}</span>
+            </td>
+            <td class="description-cell">
+              {{ fornecedor.razaoSocial }}
+            </td>
+            <td>
+              <span
+                class="status-badge"
+                [class.inactive]="!fornecedor.ativo">
+                {{ fornecedor.ativo ? 'Ativo' : 'Inativo' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer
+      class="table-footer"
+      *ngIf="
+        !carregando &&
+        !mensagemErro &&
+        fornecedoresFiltrados.length > 0
+      ">
+      Exibindo {{ fornecedoresFiltrados.length }}
+      de {{ fornecedores.length }} fornecedor(es)
+    </footer>
+  </section>
+</div>

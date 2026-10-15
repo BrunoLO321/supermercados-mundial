@@ -1,9 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
-using Mundial.Application.Interfaces;
+using Mundial.Application.Interfaces.Repositories;
 using Mundial.Domain.Entities;
 using Mundial.Infrastructure.Persistence;
-using Mundial.Application.Interfaces.Repositories;
 
 namespace Mundial.Infrastructure.Repositories;
 
@@ -24,6 +23,15 @@ public class FornecedorRepository : IFornecedorRepository
             .FirstOrDefaultAsync(
                 x => x.Id == id,
                 cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Fornecedor>> ListarAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Fornecedores
+            .AsNoTracking()
+            .OrderBy(x => x.RazaoSocial)
+            .ToListAsync(cancellationToken);
     }
 
     public Task<bool> ExistePorCnpjAsync(
